@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Развещанный нейрон - демо страница от Dobrofiner</title>
+    <link rel="stylesheet" href="dobCss.css">
+    <style>
+        code {
+    background: #f0f0f0;
+    padding: 0.2rem 0.4rem;
+    border-radius: 5px;
+    color: #e72042;
+    font-family: monospace;
+}
+    .inp{
+        resize: none;
+    }
+    </style>
+</head>
+<body class="dbg-white">
+<div class="dcolor-black dcontainer">
+    <div id="info">
+    <p class="dcol-12 dtext-center dround-3 dbg-dobrofiner dborder dborder-dobrofiner">
+   Добро пожаловать на эту страницу! На ней можно найти все что надо о развещанном нейроне и даже возможность его обучить!<br>
+</p>
+<p class="dcol-12 dtext-center dround-3 dbg-white dborder-dobrofiner">
+   Развещанный нейрон - это математическая модель нейрона, которая в отличие от перцептрона и классических нейронных моделей 
+использует свою собственную развещанную разность и мощную активацию, а не сигмоиды и взвещенную сумму. <br>
+Развещанная разность это <code>input[0]/razweight[0]-input[i]/razweight[i]</code> и так далее.. аналогом весов является развес(razweight) тут.<br>
+В отличие от классики,развесы делят (развещивают) а не взвещивают(умножают) входы. <br>
+Активация тут - полином от функции xorand( (a and b) xor c).<br>
+Формула <code>xor(x,y)=1 - (1 - y + x*x*y) * (1 - x + x*y*y)</code>.<br>
+А формула <code >and=(x,y)=x*y</code><br>
+И применяется так: сначала вычисляется and над результатом и развесом 0,а потом делается xor с этим.<br>
+И потом после этого результат от этого идет к функции активации - <code>(k*k/(k+1)+3k)/(k*k/(k+1)+3k+1)</code>
+и возвращается результат.
+Формула одной строкой - если обозначать ту формулу как dobActivation то 
+<code>dobActivation(xorand(inp[0]/rw[0]-inp[1]/rw[1]....Z,rw[0],rw[1]))</code><br>
+В итоге очень мощно и вычислительно легко для процессора.(в данный момент активацией является dobAct(<code>d = |k - |k-0.5| + k - 1/k|;out=d / (d + 1)</code>))<br> Ниже будет интерактивное обучение моим методом<br>
+</p>
+    </div>
+    <div id="interactive">
+        <div>
+            <div id="settings">
+    Здесь конфигурация. Обучать кого?<select id="model">
+            <option value="neu">Сам нейрон(с xorand)</option>
+            <option value="dNeu">Нейрон с dobAct</option>
+              <option value="neu2">Цепочку: 1 нейрон - черновик создает, другой подправляет</option>
+            </select><br>
+             <input type="checkbox" name="" checked="true" id="randSearch">Включить случайный поиск?<br>
+            Диапозон случайного поиска?(сначала минимум,потом максимум, через запяте)<input id="diaposon" type="text" value="-1,1"><br>
+            Сколько шагов сделать в случайном поиске?<input id="randSearchSteps" type="text" value="500000"><br>
+            Какую ошибку желаете?<input id="error" type="text" value="0.0001"><br>
+            Какие начальные веса(через запяте,будут проигнорированы если случайный поиск есть)? <input type="text" name="" value="1,1,1" id="startWeights"><br>
+            Сколько шагов основной части? <input type="text" name="" value="500000" id="mainSteps"><br>
+            Какой сид будет(для случайных мутаций)? <input type="text" name="" value="1" id="seed"><br>
+            <input type="checkbox" name="" id="logsEnable" checked="true">Включить ли логи?<br>
+             <input type="checkbox" name="" id="deterministicThings">Включить ли умножения весов на коэффиценты и сдвиг на малые дельты?(иногда помагает,но замедляет)<br>
+            </div>
+<div id="samples" class="dcol-12">
+                <div class="dcol-12 dbg-light-green sampleRow dborder dborder-2 dborder-blue-blue" style="margin-bottom: 1px;" data-id="0">
+<span style="margin-right: 1rem;">Входы(через запяте):
+    <input class="dcol-5 inp" rows="1">
+</span>
+<span >|Выход:<input class="dcol-2 out" rows="1"></span>
+<button class="dbtn" style="text-decoration: none;" onclick="deleteSample(this)">X</button>
+                </div>
+                
+            </div>
+        </div>
+    <button class="dbtn" onclick="createNewSample()">Создать новый пример</button>
+    <button class="dbtn" onclick="startLearning()">Начать обучение</button>
+    <button class="dbtn" onclick="loadSettings()">Загрузить настройки</button>
+    <button class="dbtn" onclick="downloadString(JSON.stringify(collectSettings()[0]),'application/json','Настройки обучения с сэпмлами.json')">Скачать настройки</button>
+
+          <br>Логи:
+    <div id="log" class="dbg-black dcolor-white dheight-3 dround" style="overflow-y: auto; font-family:monospace" >
+
+    </div>
+    <div id="result" class="dborder dborder dborder-black dborder-solid" style="margin-top: 1px;">
+
+    </div>
+    </div>
+    
+</div>
+   <script src="./neu.js"></script> 
+    <script src="./dobipt.js"></script>
+</body>
+</html>
