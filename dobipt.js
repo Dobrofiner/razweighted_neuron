@@ -40,12 +40,22 @@ let element=smples.querySelector(`[data-id='${btn.dataset.id}']`)
 element.remove()
 return 0
 }
-function downloadString(string, mime, name) {
+function uint8ToStr(arr){
+let str=""
+    for(let d=0;d<arr.length;d++){
+    str+=String.fromCharCode(arr[d]&255)
+    }
+    return str
+}
+function downloadString(string, mime, name,charset="charset=utf-8",base64=false) {
     const a = document.createElement("a");
-    a.href = "data:" + (mime || "text/plain") + "," + encodeURIComponent(string);
+    a.href = "data:" + (mime || "text/plain")+";"+charset+";" +(base64?"base64":"")+ "," + encodeURIComponent(string);
     a.setAttribute("download", name || "");
     a.click();
     return a.href;
+}
+function downloadBytes(arr,name){
+    return downloadString(btoa(uint8ToStr(arr)),"application/octet-stream",name,'charset=iso-8859-1',true)
 }
 /*    <div id="settings">
     Здесь конфигурация. Обучать кого?<select id="model">
